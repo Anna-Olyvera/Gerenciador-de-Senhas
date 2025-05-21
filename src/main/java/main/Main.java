@@ -1,5 +1,6 @@
 package main;
 
+import controller.CredenciaisController;
 import controller.UsuarioController;
 import ui.TelaCadastroUsuario;
 import ui.TelaLogin;
@@ -24,6 +25,7 @@ public class Main {
         JPanel container = new JPanel(layout);
 
         UsuarioController usuarioController = new UsuarioController();
+        CredenciaisController credenciaisController = new CredenciaisController();
 
         TelaLogin telaLogin = new TelaLogin(layout, container, usuarioController);
         TelaCadastroUsuario telaCadastroUsuario = new TelaCadastroUsuario(layout, container, usuarioController);
@@ -31,7 +33,7 @@ public class Main {
         TelaValidacaoToken telaValidaToken = new TelaValidacaoToken(layout, container, usuarioController);
         TelaValidacaoDuasEtapas telaValidacaoDuasEtapas = new TelaValidacaoDuasEtapas(layout, container, usuarioController);
         TelaEsqueceuSenha telaEsqueceuSenha = new TelaEsqueceuSenha(layout, container, usuarioController);
-        TelaAdicionarServico telaAdicionarServico = new TelaAdicionarServico(layout, container, usuarioController);
+        TelaAdicionarServico telaAdicionarServico = new TelaAdicionarServico(layout, container, credenciaisController);
         TelaEditarServico telaEditarServico = new TelaEditarServico(layout, container, usuarioController);
 
         container.add(telaLogin, "telaLogin");

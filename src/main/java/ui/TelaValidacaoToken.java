@@ -6,7 +6,6 @@ import service.TokenService;
 // IMPORTS RELACIONADOS A CRIAÇÃO DA INTERFACE GRÁFICA
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class TelaValidacaoToken extends JPanel{
     private JTextField campoToken;
