@@ -2,12 +2,11 @@ package controller;
 
 import core.Usuario;
 import core.ValidadorUsuario;
-import java.util.ArrayList;
-import java.util.List;
+import service.FirebaseService;
 
 public class UsuarioController {
-    private List<Usuario> usuarios = new ArrayList<>();
     private ValidadorUsuario validador = new ValidadorUsuario();
+    private FirebaseService firebaseService = new FirebaseService();
 
     // FUNÇÃO DE CADASTRO DE USUÁRIO
     public boolean cadastroUsuario(String login, String email, String telefone, String chaveMestra) {
@@ -15,29 +14,31 @@ public class UsuarioController {
             System.out.println("Erro: login é obrigatório.");
             return false;
         }
-        
+
         if (!validador.validarEmailOuTelefone(email, telefone)) {
             System.out.println("Erro: informe ao menos e-mail ou telefone.");
             return false;
         }
-        
+
         if (!validador.validarChaveMestra(chaveMestra)) {
             System.out.println("Erro: chave mestra é obrigatória.");
             return false;
         }
 
+        // Criar usuário e salvar no Firebase
         Usuario novoUsuario = new Usuario(login, email, telefone, chaveMestra);
-        usuarios.add(novoUsuario);
+        firebaseService.salvarUsuario(novoUsuario);
         return true;
     }
 
     // FUNÇÃO AUTENTICAÇÃO DE USUÁRIO
     public Usuario autenticar(String login, String chaveMestra) {
-        for (Usuario u : usuarios) {
-            if (u.getLogin().equals(login) && u.getChaveMestra().equals(chaveMestra)) {
-                return u;
-            }
+        Usuario usuarioFirebase = firebaseService.buscarUsuarioPorLogin(login);
+
+        if (usuarioFirebase != null && usuarioFirebase.getChaveMestra().equals(chaveMestra)) {
+            return usuarioFirebase;
         }
+
         return null;
     }
 }

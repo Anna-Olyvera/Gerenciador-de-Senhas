@@ -11,3 +11,6 @@
 # SISTEMA OPERACIONAL
 Thumbs.db
 .DS_Store
+
+# PASTA VSCODE
+.vscode/

@@ -8,7 +8,7 @@
     <artifactId>nome-do-projeto</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <!-- REPOSITÓRIOS ADICIONAIS (garantia de acesso ao Maven Central) -->
+    <!-- REPOSITÓRIOS ADICIONAIS (GARANTIA DE ACESSO AO MAVEN CENTRAL) -->
     <repositories>
         <repository>
             <id>central</id>
@@ -18,18 +18,25 @@
     </repositories>
 
     <dependencies>
-        <!-- DEPENDÊNCIA: envio de SMS via Twilio -->
+        <!-- DEPENDÊNCIA: ENVIO DE SMS VIA TWILIO -->
         <dependency>
             <groupId>com.twilio.sdk</groupId>
             <artifactId>twilio</artifactId>
-            <version>8.31.1</version> <!-- versão atualizada -->
+            <version>8.31.1</version>
         </dependency>
 
-        <!-- DEPENDÊNCIA: envio de email -->
+        <!-- DEPENDÊNCIA: ENVIO DE EMAIL -->
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
             <version>2.0.1</version>
+        </dependency>
+
+        <!-- FIREBASE ADMIN SDK -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.2.0</version>
         </dependency>
     </dependencies>
 
