@@ -1,6 +1,7 @@
 package ui;
 
 import controller.UsuarioController;
+import service.TokenService;
 
 // IMPORTS RELACIONADOS A CRIAÇÃO DA INTERFACE GRÁFICA
 import javax.swing.*;
@@ -19,9 +20,23 @@ public class TelaValidacaoToken extends JPanel{
         campoToken = new JTextField();
         add(campoToken);
 
-        // BOTÃO DE ACESSO
+        // BOTÃO: acesso a página principal
         add(new JButton());
         botaoValidarToken = new JButton("Confirmar");
         add(botaoValidarToken);
+
+
+        // EVENTO: validação de token e direcionamento para tela principal
+        botaoValidarToken.addActionListener(e -> {
+            String tokenDigitado = campoToken.getText();
+
+            if (TokenService.validarToken(tokenDigitado)) {
+                JOptionPane.showMessageDialog(this, "Token válido!");
+                layout.show(container, "telaCofreDigital");
+            }
+            else {
+                JOptionPane.showMessageDialog(this, "Token inválido. Tente novamente.");
+            }
+        });
     }
 }

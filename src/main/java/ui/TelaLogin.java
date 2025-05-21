@@ -1,6 +1,8 @@
 package ui;
 
 import controller.UsuarioController;
+import core.Sessao;
+import core.Usuario;
 
 // IMPORTS RELACIONADOS A CRIAÇÃO DA INTERFACE GRÁFICA
 import javax.swing.*;
@@ -24,24 +26,24 @@ public class TelaLogin extends JPanel{
         campoChaveMestra = new JPasswordField();
         add(campoChaveMestra);
 
-        // BOTÃO DE ACESSO
+        // BOTÃO: acesso a página de escolha da forma de recebimenot do token
         add(new JLabel());
         botaoAcessar = new JButton("Acessar");
         add(botaoAcessar);
 
-        // LINK PARA RECUPERAR SENHA
+        // LINK: recuperação de senha
         JLabel labelEsqueceu = new JLabel("<html><a href='#'>Esqueceu a senha?</a></html>");
         labelEsqueceu.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         add(labelEsqueceu);
 
-        // LINK PARA SE CADASTRAR
+        // LINK: cadastro de usuário
         JLabel labelPrimeiroAcesso = new JLabel("Primeiro acesso?");
         JLabel labelCadastro = new JLabel("<html><a href='#'>Cadastre-se</a></html>");
         labelCadastro.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         add(labelPrimeiroAcesso);
         add(labelCadastro);
 
-        // EVENTO ACIONADO PELO "ESQUCEU A SENHA"
+        // EVENTO: recuperação de senha
         labelEsqueceu.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e){
@@ -49,7 +51,7 @@ public class TelaLogin extends JPanel{
             }
         });
 
-        // EVENTO ACIONADO PELO "CADASTRAR-SE"
+        // EVENTO: cadastro de usuário
         labelCadastro.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -57,7 +59,7 @@ public class TelaLogin extends JPanel{
             }
         });
 
-        // EVENTO ACIONADO PELO BOTÃO "LOGIN"
+        // EVENTO: validação e direcionamento para a validação em duas etapas
         botaoAcessar.addActionListener(e -> {
             String login = campoLogin.getText();
             String chaveMestra = new String(campoChaveMestra.getPassword());
@@ -67,9 +69,12 @@ public class TelaLogin extends JPanel{
                 return;
             }
 
-            if (controller.autenticar(login, chaveMestra) != null) {
+            // Autentica e armazena o usuário logado na sessão
+            Usuario usuario = controller.autenticar(login, chaveMestra);
+            if (usuario != null) {
+                Sessao.setUsuarioLogado(usuario);
                 JOptionPane.showMessageDialog(this, "Login bem-sucedido!");
-                layout.show(container, "telaCofreDigital");
+                layout.show(container, "telaValidacaoDuasEtapas");
             } else {
                 JOptionPane.showMessageDialog(this, "Login ou chave mestra incorretos.");
             }
