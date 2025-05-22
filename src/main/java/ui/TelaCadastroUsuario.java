@@ -2,7 +2,6 @@ package ui;
 
 import controller.UsuarioController;
 
-// IMPORTS RELACIONADOS A CRIAÇÃO DA INTERFACE GRÁFICA
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -18,7 +17,6 @@ public class TelaCadastroUsuario extends JPanel {
     public TelaCadastroUsuario(CardLayout layout, JPanel container, UsuarioController controller) {
         setLayout(new GridLayout(5, 2, 10, 10));
 
-        // ADICIONANDO OS CAMPOS
         add(new JLabel("Login: "));
         campoLogin = new JTextField();
         add(campoLogin);
@@ -35,20 +33,18 @@ public class TelaCadastroUsuario extends JPanel {
         campoChaveMestra = new JPasswordField();
         add(campoChaveMestra);
 
-        // BOTÃO DE CADASTRO
         botaoCadastrarUsuario = new JButton("Cadastrar");
-        add(new JLabel()); // Espaço vazio
+        add(new JLabel());
         add(botaoCadastrarUsuario);
 
-        // EVENTO ACIONADO PELO BOTÃO "CADASTRAR"
         botaoCadastrarUsuario.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String login = campoLogin.getText();
                 String email = campoEmail.getText();
                 String telefone = campoTelefone.getText();
-                String chaveMestra = new String(campoChaveMestra.getPassword());
+                String chaveMestraPura = new String(campoChaveMestra.getPassword());
 
-                boolean sucesso = controller.cadastroUsuario(login, email, telefone, chaveMestra);
+                boolean sucesso = controller.cadastroUsuario(login, email, telefone, chaveMestraPura);
 
                 if (sucesso) {
                     JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso!");

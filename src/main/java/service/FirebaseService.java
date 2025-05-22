@@ -23,13 +23,14 @@ public class FirebaseService {
         this.database = FirebaseDatabase.getInstance().getReference();
     }
 
+    // INICIALIZAÇÃO
     private void inicializarFirebase() {
         try {
-            FileInputStream serviceAccount = new FileInputStream("caminho/para/serviceAccountKey.json");
+            FileInputStream serviceAccount = new FileInputStream("src/main/java/resources/senhaFirebase.json");
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl("https://SEU-PROJETO.firebaseio.com")
+                    .setDatabaseUrl("https://momo-senha-default-rtdb.firebaseio.com/")
                     .build();
 
             FirebaseApp.initializeApp(options);
@@ -40,10 +41,11 @@ public class FirebaseService {
         }
     }
 
-    // ==== USUÁRIO ====
 
+
+    // MÉTODOS DE USUÁRIO
     public void salvarUsuario(Usuario usuario) {
-        database.child("usuarios").child(usuario.getLogin()).setValueAsync(usuario);
+        database.child("Usuarios").child(usuario.getLogin()).setValueAsync(usuario);
     }
 
     public Usuario buscarUsuarioPorLogin(String login) {
@@ -74,8 +76,7 @@ public class FirebaseService {
         return resultado[0];
     }
 
-    // ==== CREDENCIAIS ====
-
+    // MÉTODOS DE CREDENCIAL
     public void salvarCredencial(String loginUsuario, Credenciais credencial) {
         database.child("credenciais").child(loginUsuario).child(credencial.getNomeCredencial()).setValueAsync(credencial);
     }
@@ -146,5 +147,30 @@ public class FirebaseService {
         }
 
         return lista;
+    }
+
+    // MÉTODO EXTRA: Exibir dados de um nó (Exemplo)
+    public void listarDadosDeUsuario(String nomeUsuario) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Usuarios/" + nomeUsuario);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        String chave = child.getKey();
+                        String valor = child.getValue(String.class);
+                        System.out.println("Chave: " + chave + " - Valor: " + valor);
+                    }
+                } else {
+                    System.out.println("Nenhum dado encontrado para '" + nomeUsuario + "'");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                System.err.println("Erro ao ler dados: " + error.getMessage());
+            }
+        });
     }
 }
