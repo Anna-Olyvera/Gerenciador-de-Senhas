@@ -5,11 +5,11 @@ import jakarta.mail.internet.*;
 import java.util.Properties;
 
 public class EmailService {
-    public static void enviarEmail(String destinatario, String assunto, String corpo) {
+    public static void enviarEmail(String destinatario, String corpo) {
 
         // ESTES DADOS DEVEM SER CRIPTOGRAFADOS E ADICIONADOS AO FIREBASE
-        final String REMETENTE = ""; 
-        final String REMETENTE_AUTENTICACAO = "";
+        final String REMETENTE = "ana.goncalo@souunit.com.br";
+        final String REMETENTE_AUTENTICACAO = "vtao bwus xpuf pagx";
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -28,7 +28,7 @@ public class EmailService {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(REMETENTE));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
-            message.setSubject(assunto);
+            message.setSubject("Código de Validação Duas Etapas");
             message.setText(corpo);
             Transport.send(message);
             System.out.println("E-mail enviado com sucesso.");

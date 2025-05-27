@@ -40,8 +40,8 @@ public class Main {
         container.add(telaCadastroUsuario, "telaCadastroUsuario");
         container.add(telaCofreDigital, "telaCofreDigital");
         container.add(telaValidaToken, "telaValidacaoToken");
-        container.add(telaValidacaoDuasEtapas, "telaValidacapDuasEtapas");
-        container.add(telaEsqueceuSenha, "telaEsquceuSenha");
+        container.add(telaValidacaoDuasEtapas, "telaValidacaoDuasEtapas");
+        container.add(telaEsqueceuSenha, "telaEsqueceuSenha");
         container.add(telaAdicionarServico, "telaAdicionarServico");
         container.add(telaEditarServico, "telaEditarServico");
 
