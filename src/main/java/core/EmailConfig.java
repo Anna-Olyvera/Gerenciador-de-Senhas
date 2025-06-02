@@ -1,25 +1,29 @@
-package core;  // ou outro pacote
+package core;
 
 public class EmailConfig {
+    private String remetente;
+    private String autenticacaoRemetente;
 
-    private String Remetente;
-    private String AutenticacaoRemetente;
-
-    public EmailConfig() {}  // construtor vazio obrigatório para Firebase
-
-    public String getRemetente() {
-        return Remetente;
+    // Construtor vazio exigido pelo Firebase
+    public EmailConfig() {
+        // Apenas para construir a classe construtora
     }
 
-    public void setRemetente(String remetente) {
-        this.Remetente = remetente;
+    // Getters
+    public String getRemetente() {
+        return remetente;
     }
 
     public String getAutenticacaoRemetente() {
-        return AutenticacaoRemetente;
+        return autenticacaoRemetente;
+    }
+
+    // Setters
+    public void setRemetente(String remetente) {
+        this.remetente = remetente;
     }
 
     public void setAutenticacaoRemetente(String autenticacaoRemetente) {
-        this.AutenticacaoRemetente = autenticacaoRemetente;
+        this.autenticacaoRemetente = autenticacaoRemetente;
     }
 }

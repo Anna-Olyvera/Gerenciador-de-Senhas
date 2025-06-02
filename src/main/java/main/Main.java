@@ -1,6 +1,5 @@
 package main;
 
-
 import controller.UsuarioController ;
 import ui.TelaCadastroUsuario;
 import ui.TelaLogin;

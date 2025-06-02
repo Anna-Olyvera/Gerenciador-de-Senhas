@@ -10,6 +10,10 @@ import service.FirebaseService;
 
 public class Senha {
 
+    private Senha() {
+        throw new IllegalStateException("Utility class");
+    }
+
     // Busca o algoritmo do Firebase ao iniciar a classe
     private static final String ALGORITMO;
 

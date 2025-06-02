@@ -8,6 +8,10 @@ import org.apache.http.util.EntityUtils;
 
 public class EmailVazado {
 
+        private EmailVazado() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static String verificarEmail(String email) {
         if (email == null || !email.contains("@") || email.length() < 5) {
             return "E-mail inválido.";
