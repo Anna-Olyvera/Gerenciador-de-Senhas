@@ -7,10 +7,9 @@ import com.google.auth.oauth2.GoogleCredentials;
 import core.Credenciais;
 import core.EmailConfig;
 import core.Usuario;
-import config.ConfigFirebase;
 
+import config.Descriptografador;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -24,12 +23,19 @@ public class FirebaseService {
         if (!inicializado) {
             inicializarFirebase();
         }
+        if (FirebaseApp.getApps().isEmpty()) {
+        throw new IllegalStateException("Erro ao inicializar o Firebase. Verifique sua chave ou criptografia.");
+        
+    }
         this.database = FirebaseDatabase.getInstance().getReference();
     }
-
     private void inicializarFirebase() {
         try {
-            InputStream serviceAccount = new ByteArrayInputStream(ConfigFirebase.JSON_CHAVE.getBytes(StandardCharsets.UTF_8));
+            System.out.println("[Firebase] Iniciando descriptografia da chave...");
+            String jsonChaveDescriptografado = Descriptografador.descriptografarArquivo("minhaSenhaSegura");
+            System.out.println("[Firebase] Chave descriptografada com sucesso.");
+
+            InputStream serviceAccount = new ByteArrayInputStream(jsonChaveDescriptografado.getBytes(StandardCharsets.UTF_8));
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -38,11 +44,15 @@ public class FirebaseService {
 
             FirebaseApp.initializeApp(options);
             inicializado = true;
+            System.out.println("[Firebase] Inicializado com sucesso.");
 
-        } catch (IOException e) {
+        } catch (Exception e) {
+            System.err.println("[Firebase] Falha na inicialização:");
             e.printStackTrace();
         }
     }
+
+
 
     public void salvarUsuario(Usuario usuario) {
         database.child("Usuarios").child(usuario.getLogin()).setValueAsync(usuario);
