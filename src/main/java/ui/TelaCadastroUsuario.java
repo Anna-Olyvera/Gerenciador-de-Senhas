@@ -1,12 +1,11 @@
 package ui;
 
 import controller.UsuarioController;
+import security.GeradorSenhaTemporaria;
 
-// IMPORTS RELACIONADOS A CRIAÇÃO DA INTERFACE GRÁFICA
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class TelaCadastroUsuario extends JPanel {
     private JTextField campoLogin;
@@ -14,11 +13,11 @@ public class TelaCadastroUsuario extends JPanel {
     private JTextField campoTelefone;
     private JPasswordField campoChaveMestra;
     private JButton botaoCadastrarUsuario;
+    private JButton botaoGerarSenha;
 
     public TelaCadastroUsuario(CardLayout layout, JPanel container, UsuarioController controller) {
-        setLayout(new GridLayout(5, 2, 10, 10));
+        setLayout(new GridLayout(6, 2, 10, 10));
 
-        // ADICIONANDO OS CAMPOS
         add(new JLabel("Login: "));
         campoLogin = new JTextField();
         add(campoLogin);
@@ -35,28 +34,31 @@ public class TelaCadastroUsuario extends JPanel {
         campoChaveMestra = new JPasswordField();
         add(campoChaveMestra);
 
-        // BOTÃO DE CADASTRO
+        botaoGerarSenha = new JButton("Gerar Senha Temporária");
+        botaoGerarSenha.addActionListener((ActionEvent e) -> {
+            String senhaTemporaria = GeradorSenhaTemporaria.gerarSenha(8); // Tamanho mínimo desejado
+            campoChaveMestra.setText(senhaTemporaria);
+            JOptionPane.showMessageDialog(this, "Senha temporária gerada:\n" + senhaTemporaria);
+        });
+
         botaoCadastrarUsuario = new JButton("Cadastrar");
-        add(new JLabel()); // Espaço vazio
-        add(botaoCadastrarUsuario);
+        botaoCadastrarUsuario.addActionListener((ActionEvent e) -> {
+            String login = campoLogin.getText();
+            String email = campoEmail.getText();
+            String telefone = campoTelefone.getText();
+            String chaveMestraPura = new String(campoChaveMestra.getPassword());
 
-        // EVENTO ACIONADO PELO BOTÃO "CADASTRAR"
-        botaoCadastrarUsuario.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String login = campoLogin.getText();
-                String email = campoEmail.getText();
-                String telefone = campoTelefone.getText();
-                String chaveMestra = new String(campoChaveMestra.getPassword());
+            boolean sucesso = controller.cadastroUsuario(login, email, telefone, chaveMestraPura);
 
-                boolean sucesso = controller.cadastroUsuario(login, email, telefone, chaveMestra);
-
-                if (sucesso) {
-                    JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso!");
-                    layout.show(container, "telaCofreDigital");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Erro ao cadastrar usuário. Verifique os dados e tente novamente.");
-                }
+            if (sucesso) {
+                JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!");
+                layout.show(container, "telaCofreDigital");
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro ao cadastrar usuário. Verifique os dados e tente novamente.");
             }
         });
+
+        add(botaoGerarSenha);
+        add(botaoCadastrarUsuario);
     }
 }

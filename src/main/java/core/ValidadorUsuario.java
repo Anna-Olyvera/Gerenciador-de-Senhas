@@ -34,6 +34,7 @@ public class ValidadorUsuario {
         if (telefone == null || telefone.isEmpty()) return false;
         return TELEFONE_PATTERN.matcher(telefone).matches();
     }
+    
 
     // Valida se email ou telefone estão preenchidos e corretos
     public boolean validarEmailOuTelefone(String email, String telefone) {
