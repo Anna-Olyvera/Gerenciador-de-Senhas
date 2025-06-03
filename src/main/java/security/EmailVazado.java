@@ -6,9 +6,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
 public class EmailVazado {
 
-        private EmailVazado() {
+    private EmailVazado() {
         throw new IllegalStateException("Utility class");
     }
 
@@ -27,7 +31,7 @@ public class EmailVazado {
                 String body = EntityUtils.toString(response.getEntity());
 
                 if (status == 200) {
-                    return "⚠️ E-mail encontrado em vazamentos:\n" + body;
+                    return parsearRespostaVazamento(body);
                 } else if (status == 404) {
                     return "✅ E-mail não encontrado em vazamentos.";
                 } else {
@@ -37,5 +41,29 @@ public class EmailVazado {
         } catch (Exception e) {
             return "Erro ao enviar requisição: " + e.getMessage();
         }
+    }
+
+    private static String parsearRespostaVazamento(String jsonResposta) {
+        StringBuilder resultado = new StringBuilder("⚠️ E-mail encontrado em vazamentos:\n");
+
+        try {
+            JsonElement jelement = JsonParser.parseString(jsonResposta);
+
+            if (jelement.isJsonArray()) {
+                JsonArray jarray = jelement.getAsJsonArray();
+                for (JsonElement elem : jarray) {
+                    String titulo = elem.getAsJsonObject().get("Title").getAsString();
+                    String data = elem.getAsJsonObject().get("BreachDate").getAsString();
+
+                    resultado.append("- ").append(titulo).append(" (").append(data).append(")\n");
+                }
+            } else {
+                resultado.append(jsonResposta); // fallback
+            }
+        } catch (Exception e) {
+            resultado.append(jsonResposta);
+        }
+
+        return resultado.toString();
     }
 }

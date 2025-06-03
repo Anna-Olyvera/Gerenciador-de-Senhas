@@ -14,9 +14,10 @@ public class TelaCadastroUsuario extends JPanel {
     private JPasswordField campoChaveMestra;
     private JButton botaoCadastrarUsuario;
     private JButton botaoGerarSenha;
+    private JButton botaoVoltar;
 
     public TelaCadastroUsuario(CardLayout layout, JPanel container, UsuarioController controller) {
-        setLayout(new GridLayout(6, 2, 10, 10));
+        setLayout(new GridLayout(5, 2, 10, 10)); // 5 linhas e 2 colunas para os campos
 
         add(new JLabel("Login: "));
         campoLogin = new JTextField();
@@ -34,31 +35,53 @@ public class TelaCadastroUsuario extends JPanel {
         campoChaveMestra = new JPasswordField();
         add(campoChaveMestra);
 
+        // Painel para os botões, para ficar numa linha só e com espaçamento natural
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+
+        botaoVoltar = new JButton("Voltar");
+        botaoVoltar.addActionListener((ActionEvent e) -> {
+            limparCampos();
+            layout.show(container, "telaLogin");
+        });
+        painelBotoes.add(botaoVoltar);
+
         botaoGerarSenha = new JButton("Gerar Senha Temporária");
         botaoGerarSenha.addActionListener((ActionEvent e) -> {
-            String senhaTemporaria = GeradorSenhaTemporaria.gerarSenha(8); // Tamanho mínimo desejado
+            String senhaTemporaria = GeradorSenhaTemporaria.gerarSenha(8);
             campoChaveMestra.setText(senhaTemporaria);
             JOptionPane.showMessageDialog(this, "Senha temporária gerada:\n" + senhaTemporaria);
         });
+        painelBotoes.add(botaoGerarSenha);
 
         botaoCadastrarUsuario = new JButton("Cadastrar");
         botaoCadastrarUsuario.addActionListener((ActionEvent e) -> {
-            String login = campoLogin.getText();
-            String email = campoEmail.getText();
-            String telefone = campoTelefone.getText();
+            String login = campoLogin.getText().trim();
+            String email = campoEmail.getText().trim();
+            String telefone = campoTelefone.getText().trim();
             String chaveMestraPura = new String(campoChaveMestra.getPassword());
 
-            boolean sucesso = controller.cadastroUsuario(login, email, telefone, chaveMestraPura);
+            String resultado = controller.cadastroUsuario(login, email, telefone, chaveMestraPura);
 
-            if (sucesso) {
-                JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!");
-                layout.show(container, "telaCofreDigital");
+            if (resultado == null) {
+                JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                limparCampos();
+                layout.show(container, "telaLogin");
             } else {
-                JOptionPane.showMessageDialog(this, "Erro ao cadastrar usuário. Verifique os dados e tente novamente.");
+                JOptionPane.showMessageDialog(this, resultado, "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
+        painelBotoes.add(botaoCadastrarUsuario);
 
-        add(botaoGerarSenha);
-        add(botaoCadastrarUsuario);
+        // Agora adiciona o painel de botões no GridLayout ocupando as duas colunas da última linha
+        // Para isso, adicionamos um label vazio para alinhar antes, e depois o painel, ocupando 2 colunas
+        add(new JLabel()); // célula vazia para alinhamento
+        add(painelBotoes);
+    }
+
+    private void limparCampos() {
+        campoLogin.setText("");
+        campoEmail.setText("");
+        campoTelefone.setText("");
+        campoChaveMestra.setText("");
     }
 }

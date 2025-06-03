@@ -9,19 +9,29 @@ public class Credenciais {
         this.senhaCredencial = senhaCredencial;
     }
 
-    // METÓDOS GETTERS
+    // GETTERS
     public String getNomeCredencial() {
         return nomeCredencial;
     }
+
     public String getSenhaCredencial() {
         return senhaCredencial;
     }
 
-    // METÓDOS SETTERS
+    // SETTERS
     public void setNomeCredencial(String nomeCredencial) {
         this.nomeCredencial = nomeCredencial;
     }
+
     public void setSenhaCredencial(String senhaCredencial) {
         this.senhaCredencial = senhaCredencial;
+    }
+
+    @Override
+    public String toString() {
+        return "Credenciais{" +
+                "nomeCredencial='" + nomeCredencial + '\'' +
+                ", senhaCredencial='" + senhaCredencial + '\'' +
+                '}';
     }
 }

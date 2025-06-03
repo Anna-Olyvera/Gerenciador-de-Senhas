@@ -7,10 +7,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class TelaAdicionarServico extends JPanel {
-    private TelaCofreDigital telaCofre;
-    private JTextField campoNomeCredencial;
-    private JTextField campoSenhaCredencial;
-    private JButton botaoConfirmar;
+    private final TelaCofreDigital telaCofre;  // final para uso no listener
+    private final JTextField campoNomeCredencial;
+    private final JTextField campoSenhaCredencial;
+    private final JButton botaoConfirmar;
 
     public TelaAdicionarServico(CardLayout layout, JPanel container, CredenciaisController controller, TelaCofreDigital telaCofre) {
         this.telaCofre = telaCofre;
@@ -24,7 +24,7 @@ public class TelaAdicionarServico extends JPanel {
         campoSenhaCredencial = new JTextField();
         add(campoSenhaCredencial);
 
-        add(new JLabel());
+        add(new JLabel()); // espaço vazio para alinhar o botão
         botaoConfirmar = new JButton("Confirmar");
         add(botaoConfirmar);
 
@@ -49,7 +49,10 @@ public class TelaAdicionarServico extends JPanel {
             if (sucesso) {
                 JOptionPane.showMessageDialog(this, "Credencial adicionada com sucesso!");
                 limparCampos();
-                telaCofre.carregarCredenciais();
+
+                // Usa this.telaCofre para garantir acesso ao campo
+                this.telaCofre.carregarCredenciais();
+
                 layout.show(container, "telaCofreDigital");
             } else {
                 JOptionPane.showMessageDialog(this, "Erro ao adicionar credencial. Tente novamente.");

@@ -1,5 +1,6 @@
 package service;
 
+import com.google.api.core.ApiFuture;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.*;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FirebaseService {
     private static boolean inicializado = false;
@@ -21,52 +23,44 @@ public class FirebaseService {
 
     public FirebaseService() {
         if (!inicializado) {
-            inicializarFirebase();
+            try {
+                inicializarFirebase();
+            } catch (Exception e) {
+                throw new IllegalStateException("Erro ao inicializar o Firebase", e);
+            }
         }
         if (FirebaseApp.getApps().isEmpty()) {
-        throw new IllegalStateException("Erro ao inicializar o Firebase. Verifique sua chave ou criptografia.");
-        
-    }
+            throw new IllegalStateException("Erro ao inicializar o Firebase. Verifique sua chave ou criptografia.");
+        }
         this.database = FirebaseDatabase.getInstance().getReference();
     }
-    private void inicializarFirebase() {
-        try {
-            System.out.println("[Firebase] Iniciando descriptografia da chave...");
-            String jsonChaveDescriptografado = Descriptografador.descriptografarArquivo("minhaSenhaSegura");
-            System.out.println("[Firebase] Chave descriptografada com sucesso.");
 
-            InputStream serviceAccount = new ByteArrayInputStream(jsonChaveDescriptografado.getBytes(StandardCharsets.UTF_8));
+    private void inicializarFirebase() throws Exception {
+        String jsonChaveDescriptografado = Descriptografador.descriptografarArquivo("minhaSenhaSegura");
+        InputStream serviceAccount = new ByteArrayInputStream(jsonChaveDescriptografado.getBytes(StandardCharsets.UTF_8));
 
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl("https://momo-senha-default-rtdb.firebaseio.com/")
-                    .build();
+        FirebaseOptions options = FirebaseOptions.builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setDatabaseUrl("https://momo-senha-default-rtdb.firebaseio.com/")
+                .build();
 
-            FirebaseApp.initializeApp(options);
-            inicializado = true;
-            System.out.println("[Firebase] Inicializado com sucesso.");
-
-        } catch (Exception e) {
-            System.err.println("[Firebase] Falha na inicialização:");
-            e.printStackTrace();
-        }
+        FirebaseApp.initializeApp(options);
+        inicializado = true;
     }
-
-
 
     public void salvarUsuario(Usuario usuario) {
         database.child("Usuarios").child(usuario.getLogin()).setValueAsync(usuario);
     }
 
     public Usuario buscarUsuarioPorLogin(String login) {
-        final Usuario[] resultado = {null};
+        AtomicReference<Usuario> resultado = new AtomicReference<>(null);
         CountDownLatch latch = new CountDownLatch(1);
 
         database.child("Usuarios").child(login).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    resultado[0] = snapshot.getValue(Usuario.class);
+                    resultado.set(snapshot.getValue(Usuario.class));
                 }
                 latch.countDown();
             }
@@ -80,96 +74,121 @@ public class FirebaseService {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
-        return resultado[0];
+        return resultado.get();
     }
 
     public void salvarCredencial(String loginUsuario, Credenciais credencial) {
-    database.child("Usuarios")
-            .child(loginUsuario)
-            .child("Credenciais")
-            .child(credencial.getNomeCredencial())
-            .setValueAsync(credencial.getSenhaCredencial());  // Salva só a senha como valor direto
-}
-
-
-public boolean removerCredencial(String loginUsuario, String nomeCredencial) {
-    try {
-        DatabaseReference ref = database.child("Usuarios")
-            .child(loginUsuario)
-            .child("Credenciais")
-            .child(nomeCredencial);
-
-        ref.removeValueAsync();
-        return true;
-    } catch (Exception e) {
-        System.err.println("Erro ao remover credencial: " + e.getMessage());
-        return false;
+        database.child("Usuarios")
+                .child(loginUsuario)
+                .child("Credenciais")
+                .child(credencial.getNomeCredencial())
+                .setValueAsync(credencial.getSenhaCredencial());
     }
-}
 
+    public boolean usuarioExiste(String login) {
+        AtomicReference<Boolean> existe = new AtomicReference<>(false);
+        CountDownLatch latch = new CountDownLatch(1);
 
-public Credenciais buscarCredencial(String loginUsuario, String nomeCredencial) {
-    final Credenciais[] resultado = {null};
-    CountDownLatch latch = new CountDownLatch(1);
-
-    database.child("Usuarios").child(loginUsuario).child("Credenciais").child(nomeCredencial)
-            .addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        resultado[0] = snapshot.getValue(Credenciais.class);
+        database.child("Usuarios").child(login)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        existe.set(snapshot.exists());
+                        latch.countDown();
                     }
-                    latch.countDown();
-                }
 
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    latch.countDown();
-                }
-            });
-
-    try {
-        latch.await();
-    } catch (InterruptedException e) {
-        e.printStackTrace();
-    }
-
-    return resultado[0];
-}
-
-public List<Credenciais> buscarCredenciais(String loginUsuario) {
-    List<Credenciais> lista = new ArrayList<>();
-    CountDownLatch latch = new CountDownLatch(1);
-
-    database.child("Usuarios").child(loginUsuario).child("Credenciais")
-            .addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    for (DataSnapshot dado : snapshot.getChildren()) {
-                        Credenciais c = dado.getValue(Credenciais.class);
-                        if (c != null) lista.add(c);
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        latch.countDown();
                     }
-                    latch.countDown();
-                }
+                });
 
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    latch.countDown();
-                }
-            });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
-    try {
-        latch.await();
-    } catch (InterruptedException e) {
-        e.printStackTrace();
+        return existe.get();
     }
 
-    return lista;
-}
+    public boolean removerCredencial(String loginUsuario, String nomeCredencial) {
+        try {
+            DatabaseReference ref = database.child("Usuarios")
+                    .child(loginUsuario)
+                    .child("Credenciais")
+                    .child(nomeCredencial);
 
+            ApiFuture<Void> future = ref.removeValueAsync();
+            future.get(); // espera remover realmente
+            return true;
+        } catch (Exception e) {
+            System.err.println("Erro ao remover credencial: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public Credenciais buscarCredencial(String loginUsuario, String nomeCredencial) {
+        AtomicReference<Credenciais> resultado = new AtomicReference<>(null);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        database.child("Usuarios").child(loginUsuario).child("Credenciais").child(nomeCredencial)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            resultado.set(snapshot.getValue(Credenciais.class));
+                        }
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        latch.countDown();
+                    }
+                });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        return resultado.get();
+    }
+
+    public List<Credenciais> buscarCredenciais(String loginUsuario) {
+        List<Credenciais> lista = new ArrayList<>();
+        CountDownLatch latch = new CountDownLatch(1);
+
+        database.child("Usuarios").child(loginUsuario).child("Credenciais")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        for (DataSnapshot dado : snapshot.getChildren()) {
+                            Credenciais c = dado.getValue(Credenciais.class);
+                            if (c != null) lista.add(c);
+                        }
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        latch.countDown();
+                    }
+                });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        return lista;
+    }
 
     public void listarDadosDeUsuario(String nomeUsuario) {
         DatabaseReference ref = database.child("Usuarios").child(nomeUsuario);
@@ -177,26 +196,18 @@ public List<Credenciais> buscarCredenciais(String loginUsuario) {
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for (DataSnapshot child : snapshot.getChildren()) {
-                        String chave = child.getKey();
-                        String valor = child.getValue(String.class);
-                        System.out.println("Chave: " + chave + " - Valor: " + valor);
-                    }
-                } else {
-                    System.out.println("Nenhum dado encontrado para '" + nomeUsuario + "'");
-                }
+                // sem print
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
-                System.err.println("Erro ao ler dados: " + error.getMessage());
+                // sem print
             }
         });
     }
 
     public String buscarAlgoritmoHash() {
-        final String[] resultado = {null};
+        AtomicReference<String> resultado = new AtomicReference<>(null);
         CountDownLatch latch = new CountDownLatch(1);
 
         database.child("Manager").child("Algoritmo Cripto")
@@ -204,7 +215,7 @@ public List<Credenciais> buscarCredenciais(String loginUsuario) {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
                         if (snapshot.exists()) {
-                            resultado[0] = snapshot.getValue(String.class);
+                            resultado.set(snapshot.getValue(String.class));
                         }
                         latch.countDown();
                     }
@@ -218,15 +229,14 @@ public List<Credenciais> buscarCredenciais(String loginUsuario) {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
-        return resultado[0];
+        return resultado.get();
     }
 
-    // NOVO: método para buscar EmailConfig
     public EmailConfig buscarEmailConfig() {
-        final EmailConfig[] resultado = {null};
+        AtomicReference<EmailConfig> resultado = new AtomicReference<>(null);
         CountDownLatch latch = new CountDownLatch(1);
 
         database.child("Manager").child("EmailConfig")
@@ -234,7 +244,7 @@ public List<Credenciais> buscarCredenciais(String loginUsuario) {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
                         if (snapshot.exists()) {
-                            resultado[0] = snapshot.getValue(EmailConfig.class);
+                            resultado.set(snapshot.getValue(EmailConfig.class));
                         }
                         latch.countDown();
                     }
@@ -248,9 +258,118 @@ public List<Credenciais> buscarCredenciais(String loginUsuario) {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
-        return resultado[0];
+        return resultado.get();
+    }
+
+    public void salvarTokenEsqueceuSenha(String loginUsuario, String token, long timestamp) {
+        Map<String, Object> tokenData = new HashMap<>();
+        tokenData.put("token", token);
+        tokenData.put("timestamp", timestamp);
+
+        database.child("TokensEsqueceuSenha").child(loginUsuario).setValueAsync(tokenData);
+    }
+
+    public Map<String, Object> buscarTokenEsqueceuSenha(String loginUsuario) {
+        AtomicReference<Map<String, Object>> resultado = new AtomicReference<>(null);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        database.child("TokensEsqueceuSenha").child(loginUsuario)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            Map<String, Object> tokenData = new HashMap<>();
+                            for (DataSnapshot child : snapshot.getChildren()) {
+                                tokenData.put(child.getKey(), child.getValue());
+                            }
+                            resultado.set(tokenData);
+                        }
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        latch.countDown();
+                    }
+                });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        return resultado.get();
+    }
+
+    public Usuario buscarUsuarioPorEmail(String email) {
+        AtomicReference<Usuario> resultado = new AtomicReference<>(null);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        database.child("Usuarios")
+                .orderByChild("email")
+                .equalTo(email)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            for (DataSnapshot child : snapshot.getChildren()) {
+                                resultado.set(child.getValue(Usuario.class));
+                                break;
+                            }
+                        }
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        latch.countDown();
+                    }
+                });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        return resultado.get();
+    }
+
+    public Usuario buscarUsuarioPorTelefone(String telefone) {
+        AtomicReference<Usuario> resultado = new AtomicReference<>(null);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        database.child("Usuarios")
+                .orderByChild("telefone")
+                .equalTo(telefone)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            for (DataSnapshot child : snapshot.getChildren()) {
+                                resultado.set(child.getValue(Usuario.class));
+                                break;
+                            }
+                        }
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        latch.countDown();
+                    }
+                });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        return resultado.get();
     }
 }

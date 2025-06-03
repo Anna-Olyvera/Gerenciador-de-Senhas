@@ -10,13 +10,13 @@ import java.awt.*;
 
 public class TelaCofreDigital extends JPanel {
 
-    private UsuarioController controller;
-    private CardLayout layout;
-    private JPanel container;
-    private Usuario usuario;
+    private final UsuarioController controller;
+    private final CardLayout layout;
+    private final JPanel container;
+    private final Usuario usuario;
 
-    private JList<String> listaCredenciais;
-    private DefaultListModel<String> modeloLista;
+    private final JList<String> listaCredenciais;
+    private final DefaultListModel<String> modeloLista;
 
     public TelaCofreDigital(CardLayout layout, JPanel container, UsuarioController controller, Usuario usuarioLogado) {
         this.controller = controller;
@@ -30,17 +30,15 @@ public class TelaCofreDigital extends JPanel {
         titulo.setFont(new Font("Arial", Font.BOLD, 20));
         add(titulo, BorderLayout.NORTH);
 
-        // Lista de credenciais
         modeloLista = new DefaultListModel<>();
         listaCredenciais = new JList<>(modeloLista);
         listaCredenciais.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         add(new JScrollPane(listaCredenciais), BorderLayout.CENTER);
 
-        // Painel de botões
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
         JButton botaoAdicionarServico = new JButton("Adicionar Serviço");
-        botaoAdicionarServico.addActionListener(e -> layout.show(container, "telaAdicionarServico"));
+        botaoAdicionarServico.addActionListener(e -> this.layout.show(this.container, "telaAdicionarServico"));
 
         JButton botaoExcluir = new JButton("Excluir");
         botaoExcluir.addActionListener(e -> {
@@ -57,7 +55,7 @@ public class TelaCofreDigital extends JPanel {
                     "Confirmação", JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
-                boolean sucesso = controller.removerCredencial(usuario.getLogin(), nomeServico);
+                boolean sucesso = this.controller.removerCredencial(this.usuario.getLogin(), nomeServico);
                 if (sucesso) {
                     modeloLista.removeElement(selecionado);
                     JOptionPane.showMessageDialog(this, "Credencial excluída com sucesso.");
@@ -69,29 +67,25 @@ public class TelaCofreDigital extends JPanel {
 
         JButton botaoVerificarEmail = new JButton("Verificar Vazamento");
         botaoVerificarEmail.addActionListener(e -> {
-            String email = usuario.getEmail(); // Usa o e-mail do usuário logado
-            String resultado = security.EmailVazado.verificarEmail(email); // Chama a verificação
-
+            String email = this.usuario.getEmail();
+            String resultado = security.EmailVazado.verificarEmail(email);
             JOptionPane.showMessageDialog(this, resultado, "Resultado da Verificação", JOptionPane.INFORMATION_MESSAGE);
         });
 
-painelBotoes.add(botaoVerificarEmail);
-
-
-        JButton btnVoltar = new JButton("Voltar");
-        btnVoltar.addActionListener(e -> layout.show(container, "telaLogin"));
+        JButton botaoVoltar = new JButton("Voltar");
+        botaoVoltar.addActionListener(e -> this.layout.show(this.container, "telaLogin"));
 
         JButton botaoSair = new JButton("Sair");
         botaoSair.addActionListener(e -> {
             Sessao.limparSessao();
-            layout.show(container, "telaLogin");
+            this.layout.show(this.container, "telaLogin");
         });
 
         painelBotoes.add(botaoAdicionarServico);
         painelBotoes.add(botaoExcluir);
-        painelBotoes.add(btnVoltar);
-        painelBotoes.add(botaoSair);
         painelBotoes.add(botaoVerificarEmail);
+        painelBotoes.add(botaoVoltar);
+        painelBotoes.add(botaoSair);
 
         add(painelBotoes, BorderLayout.SOUTH);
 
@@ -103,12 +97,13 @@ painelBotoes.add(botaoVerificarEmail);
 
         DatabaseReference ref = FirebaseDatabase.getInstance()
                 .getReference("Usuarios")
-                .child(usuario.getLogin())
+                .child(this.usuario.getLogin())
                 .child("Credenciais");
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+                modeloLista.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot credencialSnapshot : snapshot.getChildren()) {
                         String nomeServico = credencialSnapshot.getKey();
@@ -122,6 +117,7 @@ painelBotoes.add(botaoVerificarEmail);
 
             @Override
             public void onCancelled(DatabaseError error) {
+                modeloLista.clear();
                 modeloLista.addElement("Erro ao carregar credenciais: " + error.getMessage());
             }
         });

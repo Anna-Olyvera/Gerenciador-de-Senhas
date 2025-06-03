@@ -7,24 +7,24 @@ public class Usuario {
     private String salt;
     private String hash;
 
-    public Usuario() {
-        // Construtor vazio necessário para Firebase
+    // Construtor vazio necessário para Firebase
+    public Usuario() {}
+
+    // Construtor apenas com login (útil para buscas simples)
+    public Usuario(String login) {
+        this.login = login;
     }
 
-public Usuario(String login) {
-    this.login = login;
-}
-
-public Usuario(String login, String email, String telefone, String salt, String hash) {
-    this.login = login;
-    this.email = email;
-    this.telefone = telefone;
-    this.salt = salt;
-    this.hash = hash;
-}
+    // Construtor completo
+    public Usuario(String login, String email, String telefone, String salt, String hash) {
+        this.login = login;
+        this.email = email;
+        this.telefone = telefone;
+        this.salt = salt;
+        this.hash = hash;
+    }
 
     // Getters e setters
-
     public String getLogin() {
         return login;
     }

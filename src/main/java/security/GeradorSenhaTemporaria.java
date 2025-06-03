@@ -6,7 +6,7 @@ public class GeradorSenhaTemporaria {
 
     private static final String LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final String NUMEROS = "0123456789";
-    private static final String ESPECIAIS = "!@#$%&*";
+    private static final String ESPECIAIS = "!@#$%&";
 
     private static final SecureRandom random = new SecureRandom();
 
@@ -35,16 +35,11 @@ public class GeradorSenhaTemporaria {
         char[] array = input.toCharArray();
         for (int i = array.length - 1; i > 0; i--) {
             int j = random.nextInt(i + 1);
+            // Troca de posições
             char temp = array[i];
             array[i] = array[j];
             array[j] = temp;
         }
         return new String(array);
-    }
-
-    // Teste
-    public static void main(String[] args) {
-        String senha = gerarSenha(8); // Tamanho mínimo de 8, pode mudar
-        System.out.println("Senha gerada: " + senha);
     }
 }

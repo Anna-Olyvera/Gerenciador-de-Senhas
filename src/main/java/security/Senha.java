@@ -22,7 +22,7 @@ public class Senha {
         String algoritmoFirebase = firebaseService.buscarAlgoritmoHash();
         ALGORITMO = (algoritmoFirebase != null && !algoritmoFirebase.isEmpty())
                 ? algoritmoFirebase
-                : "Aloha"; // valor padrão de segurança
+                : "PBKDF2WithHmacSHA256"; // valor padrão mais comum e seguro
     }
 
     public static String gerarSalt() {
@@ -50,6 +50,7 @@ public class Senha {
 
     public static boolean verificarSenha(String senhaPura, String senhaArmazenada) {
         try {
+            if (senhaArmazenada == null) return false;
             String[] parts = senhaArmazenada.split(":");
             if (parts.length != 2) return false;
             String salt = parts[0];
