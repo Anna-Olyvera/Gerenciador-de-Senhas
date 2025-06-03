@@ -36,7 +36,7 @@ public class FirebaseService {
     }
 
     private void inicializarFirebase() throws Exception {
-        String jsonChaveDescriptografado = Descriptografador.descriptografarArquivo("minhaSenhaSegura");
+        String jsonChaveDescriptografado = Descriptografador.descriptografarArquivo("minhaSenhaSegura123");
         InputStream serviceAccount = new ByteArrayInputStream(jsonChaveDescriptografado.getBytes(StandardCharsets.UTF_8));
 
         FirebaseOptions options = FirebaseOptions.builder()

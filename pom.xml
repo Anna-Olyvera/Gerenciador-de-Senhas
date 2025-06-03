@@ -26,6 +26,13 @@
     </repositories>
 
     <dependencies>
+        <!-- FORÇAR VERSÃO SEGURA DO COMMONS-CODEC -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.16.0</version>
+        </dependency>
+
         <!-- DEPENDÊNCIA: ENVIO DE EMAIL -->
         <dependency>
             <groupId>com.sun.mail</groupId>
@@ -37,7 +44,7 @@
         <dependency>
             <groupId>com.google.firebase</groupId>
             <artifactId>firebase-admin</artifactId>
-            <version>9.2.0</version>
+            <version>9.5.0</version>
         </dependency>
 
         <!-- HTTP client atualizado para 4.5.14 -->
