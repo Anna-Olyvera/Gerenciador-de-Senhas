@@ -7,11 +7,11 @@ public class ValidadorCredenciais {
         if (nomeCredencial == null || nomeCredencial.trim().isEmpty()) {
             return false;
         }
-        if (nomeCredencial.length() > 50) {
+        if (nomeCredencial.length() > 30) {
             return false;
         }
-        // Permite letras, números, espaços, hífens, underline e ponto (máx 50 chars)
-        return nomeCredencial.matches("^[\\w\\s\\-\\.]{1,50}$");
+        // Permite letras, números, espaços, hífens, underline e ponto (máx 30 chars)
+        return nomeCredencial.matches("^[\\w\\s\\-\\.]{1,30}$");
     }
 
     // Valida a senha da credencial
@@ -19,10 +19,10 @@ public class ValidadorCredenciais {
         if (senhaCredencial == null || senhaCredencial.isEmpty()) {
             return false;
         }
-        if (senhaCredencial.length() < 6 || senhaCredencial.length() > 50) {
+        if (senhaCredencial.length() < 6 || senhaCredencial.length() > 20) {
             return false;
+        } else {
+            return true;
         }
-        // Pode incluir regras extras (ex: força, caracteres especiais, etc)
-        return true;
     }
 }

@@ -17,6 +17,10 @@ A aplicação foi construída utilizando o padrão arquitetural **MVC (Model-Vie
 - **Maven** (gerenciador de dependências)
 - **PBKDF2WithHmacSHA256** (criptografia de senhas)
 - **SpotBugs** e **SonarQube** (análise de qualidade e segurança de código)
+- **Apache HttpClient** — Realiza requisições HTTP para verificação de e-mails vazados.
+- **Gson** — Biblioteca do Google para manipulação de JSON.
+- **API Pwned Passwords (Have I Been Pwned)** — Verifica se uma senha foi exposta em vazamentos.
+- **API HackCheck (WovenTeams)** — Verifica se um e-mail foi comprometido em vazamentos de dados.
 
 ---
 
@@ -52,10 +56,12 @@ Para utilizar o Gerenciador de Senhas, basta seguir os passos abaixo:
 
 A aplicação foi testada com:
 
+- **JUnit 5** – Framework de testes unitários utilizado para validar o comportamento de métodos essenciais do sistema
+- **Mockito** – Utilizado para simulação (mock) de dependências e verificação de interações, garantindo testes isolados e confiáveis
 - **SpotBugs** – Identificação de bugs e vulnerabilidades comuns em Java
 - **SonarQube** – Avaliação da qualidade do código, cobertura de testes e segurança
 
-Essas ferramentas ajudaram a manter o projeto com **alto padrão de qualidade, segurança e desempenho**.
+Essas ferramentas contribuíram para manter o projeto com **alto padrão de qualidade, segurança e desempenho**, garantindo que os componentes críticos funcionem corretamente e que o código esteja livre de falhas comuns.
 
 ---
 

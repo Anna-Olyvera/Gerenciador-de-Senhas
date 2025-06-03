@@ -3,6 +3,7 @@ package controller;
 import core.Usuario;
 import core.ValidadorUsuario;
 import security.Senha;
+import security.SenhaVazada;
 import service.EmailService;
 import service.FirebaseService;
 import service.TokenService;
@@ -30,6 +31,10 @@ public class UsuarioController {
 
         if (!validador.validarChaveMestra(chaveMestraPura)) {
             return "Chave mestra é obrigatória.";
+        }
+
+        if (SenhaVazada.senhaFoiVazada(chaveMestraPura)) {
+            return "Esta senha foi comprometida em vazamentos de dados. Por favor, escolha outra.";
         }
 
         if (firebaseService.usuarioExiste(login)) {
