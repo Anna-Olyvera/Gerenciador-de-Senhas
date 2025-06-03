@@ -44,7 +44,7 @@ A aplicação foi construída utilizando o padrão arquitetural **MVC (Model-Vie
 Para utilizar o Gerenciador de Senhas, basta seguir os passos abaixo:
 
 1. **Baixe o executável**:
-   - [`gerenciasenha.exe`](#) *(adicione aqui o link de download quando disponível)*
+   - [`gerenciasenha.exe`](#)
 
 2. **Execute o arquivo** com um duplo clique.
    - Não é necessário ter uma IDE como Eclipse ou IntelliJ instalada.
