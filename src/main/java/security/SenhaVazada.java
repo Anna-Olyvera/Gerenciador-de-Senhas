@@ -42,6 +42,11 @@ public class SenhaVazada {
         return false; // Senha não vazada
     }
 
+    /*Embora o uso do SHA-1 seja desencorajado para armazenamento de senhas e 
+    assinatura digital, seu uso aqui é obrigatório para integração com a API 
+    pública PwnedPasswords da Have I Been Pwned. Essa API aceita apenas SHA-1 e 
+    utiliza um modelo de k-Anonimato para preservar a privacidade da senha do 
+    usuário. Nenhuma senha ou hash completo é transmitido*/ 
     private static String gerarSha1(String entrada) {
         try {
             MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
@@ -54,5 +59,6 @@ public class SenhaVazada {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Algoritmo SHA-1 não encontrado", e);
         }
+        
     }
 }
